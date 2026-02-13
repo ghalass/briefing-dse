@@ -9,6 +9,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+
+// Import de recharts avec alias pour éviter les conflits
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart as RechartsLineChart,
+  Line,
+  Cell,
+  LabelList,
+} from "recharts";
 
 export default function HomePage() {
   const [openDu, setOpenDu] = React.useState(false);
@@ -17,6 +34,51 @@ export default function HomePage() {
   const today = new Date();
   const [dateDu, setDateDu] = React.useState<Date | undefined>(today);
   const [dateAu, setDateAu] = React.useState<Date | undefined>(today);
+
+  const mtbfChartData = [
+    { mois: "Jan", mtbf: 150, objectif_mtbf: 180 },
+    { mois: "Feb", mtbf: 165, objectif_mtbf: 180 },
+    { mois: "Mar", mtbf: 140, objectif_mtbf: 180 },
+    { mois: "Apr", mtbf: 175, objectif_mtbf: 180 },
+    { mois: "May", mtbf: 190, objectif_mtbf: 180 },
+    { mois: "Jun", mtbf: 210, objectif_mtbf: 180 },
+  ];
+
+  const CustomMtbfLabel = (props: any) => {
+    const { x, y, value } = props;
+    if (value === undefined || value === null) return null;
+
+    return (
+      <text
+        x={x}
+        y={y - 15}
+        fill="#8884d8"
+        textAnchor="middle"
+        fontSize={11}
+        fontWeight="medium"
+      >
+        {value.toFixed(0)}h
+      </text>
+    );
+  };
+
+  const CustomObjectifLabel = (props: any) => {
+    const { x, y, value } = props;
+    if (value === undefined || value === null) return null;
+
+    return (
+      <text
+        x={x}
+        y={y - 15}
+        fill="#82ca9d"
+        textAnchor="middle"
+        fontSize={11}
+        fontWeight="medium"
+      >
+        {value.toFixed(0)}h
+      </text>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-linear-to-b from-background to-muted/20 p-4 md:p-6">
@@ -27,7 +89,7 @@ export default function HomePage() {
             Tableau de bord Briefing DSE
           </h1>
 
-          <div className="flex items-center">
+          <div className="flex items-center justify-between max-w-sm mx-auto gap-6">
             {/* DATE DU */}
             <Field className="mx-auto w-44">
               <FieldLabel htmlFor="date">Date du</FieldLabel>
@@ -99,6 +161,83 @@ export default function HomePage() {
                 </PopoverContent>
               </Popover>
             </Field>
+
+            <div className="mt-7">
+              <Button
+                onClick={() => {}}
+                // disabled={isLoading || !selectedParc}
+                className="w-full gap-2"
+              >
+                {/* {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )} */}
+                Actualiser
+              </Button>
+            </div>
+          </div>
+
+          <div>
+            {dateDu && dateAu && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Période sélectionnée :{" "}
+                <span className="font-medium text-foreground">
+                  {dateDu.toLocaleDateString()} - {dateAu.toLocaleDateString()}
+                </span>
+              </p>
+            )}
+          </div>
+
+          <div className="h-[300px] mb-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <RechartsLineChart data={mtbfChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="mois" />
+                <YAxis />
+                <Tooltip
+                  formatter={(value, name) => {
+                    if (name === "mtbf") return [`${value} h`, "MTBF"];
+                    if (name === "objectif_mtbf")
+                      return [`${value} h`, "Objectif MTBF"];
+                    return [value, name];
+                  }}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="mtbf"
+                  name="MTBF (h)"
+                  stroke="#8884d8"
+                  strokeWidth={2}
+                  activeDot={{ r: 8 }}
+                >
+                  {/* Ajout des valeurs sur les points MTBF */}
+                  <LabelList
+                    dataKey="mtbf"
+                    position="top"
+                    content={<CustomMtbfLabel />}
+                  />
+                </Line>
+                {mtbfChartData.some((item) => item.objectif_mtbf !== null) && (
+                  <Line
+                    type="monotone"
+                    dataKey="objectif_mtbf"
+                    name="Objectif MTBF"
+                    stroke="#82ca9d"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                  >
+                    {/* Ajout des valeurs sur les points d'objectif */}
+                    <LabelList
+                      dataKey="objectif_mtbf"
+                      position="top"
+                      content={<CustomObjectifLabel />}
+                    />
+                  </Line>
+                )}
+              </RechartsLineChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
