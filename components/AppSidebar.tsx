@@ -262,12 +262,12 @@ const adminItems = {
       icon: ShieldUser,
       description: "Gérer les permissions",
     },
-    {
-      title: "Importations",
-      url: "/importations",
-      icon: FileUpIcon,
-      description: "Gérer les importations",
-    },
+    // {
+    //   title: "Importations",
+    //   url: "/importations",
+    //   icon: FileUpIcon,
+    //   description: "Gérer les importations",
+    // },
   ],
 };
 

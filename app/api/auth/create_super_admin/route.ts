@@ -1,15 +1,34 @@
 // app/api/users/route.ts
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import yup from "@/lib/yupFr";
+
+const userCreateSchema = yup.object({
+  email: yup.string().required().email().label("Email"),
+  name: yup.string().required().label("Nom d'utilisateur"),
+  password: yup.string().required().min(6).label("Mot de passe"),
+});
 
 // POST - Créer un utilisateur
-export async function GET() {
+export async function POST(request: NextRequest) {
   try {
+    const body = await request.json();
+    // Validation avec Yup
+    try {
+      await userCreateSchema.validate(body, { abortEarly: false });
+    } catch (validationError: any) {
+      return NextResponse.json(
+        { message: validationError.errors },
+        { status: 400 },
+      );
+    }
+    const { name, email, password } = body;
+
     const superAdminToCreate = {
-      name: "ghalass",
-      email: "ghalass@ghalass.com",
-      password: "super@dmin",
+      name: name,
+      email: email,
+      password: password,
       roles: ["super admin"],
       active: true,
     };

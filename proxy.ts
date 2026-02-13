@@ -10,13 +10,11 @@ export async function proxy(req: NextRequest) {
 
   const publicPaths = [
     // "/",
-    // "/about",
     "/login",
-    // "/api/users",
+    "/api/auth/create_super_admin",
     "/api/auth/login",
     "/api/auth/logout",
     "/api/auth/me",
-    // "/api/sites",
   ];
 
   // 🔓 Routes publiques
